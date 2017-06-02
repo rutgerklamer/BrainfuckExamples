@@ -1,5 +1,8 @@
-To compile go to
+To compile install CMake and make.
 
-- https://copy.sh/brainfuck
-
-And paste the code, I'll try to write my own compiler later in c++.
+- mkdir build
+- cd build
+- cmake ..
+- make
+- ./brainfuck 'BrainfuckName.b'
+- ./a.out
