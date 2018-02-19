@@ -4,5 +4,4 @@ To compile install CMake and make.
 - cd build
 - cmake ..
 - make
-- ./brainfuck 'BrainfuckName.b'
-- ./a.out
+- ./brainfuck 'BrainfuckName.b' 'brainfuck input'
