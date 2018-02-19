@@ -1,19 +1,17 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <stdint.h>
 #include <Windows.h>
 
-std::vector<uint8_t> m_cells;
+std::vector<int> m_cells;
 std::vector<int> m_current_loop;
 std::vector<char> m_brainfuck_code;
 int m_cell;
 int m_inp_pos;
 std::string input;
 bool m_false_loop;
-uint16_t m_found_brackets;
-
 void runCode();
+int m_found_brackets;
 
 int main(int argc, char const *argv[])
 {
@@ -70,7 +68,7 @@ void runCode()
 					std::cout << static_cast<char>(m_cells[m_cell]) << std::flush;
 				break;
 			case ',':
-				(m_inp_pos < input.size() ? m_cells[m_cell] = static_cast<uint16_t>(input[m_inp_pos]), m_inp_pos++ : m_cells[m_cell] = 0);
+				(m_inp_pos < input.size() ? m_cells[m_cell] = static_cast<int>(input[m_inp_pos]), m_inp_pos++ : m_cells[m_cell] = 0);
 				break;
 			default:
 				break;
