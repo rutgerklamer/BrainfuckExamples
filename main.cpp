@@ -1,101 +1,87 @@
-#include <map>
-#include <set>
-#include <list>
-#include <cmath>
-#include <ctime>
-#include <deque>
-#include <queue>
-#include <stack>
-#include <bitset>
-#include <cstdio>
-#include <limits>
 #include <vector>
-#include <cstdlib>
-#include <numeric>
-#include <sstream>
 #include <iostream>
-#include <algorithm>
-#include <iterator>
 #include <fstream>
+#include <stdint.h>
+#include <Windows.h>
+
+std::vector<uint8_t> m_cells;
+std::vector<int> m_current_loop;
+std::vector<char> m_brainfuck_code;
+int m_cell;
+int m_inp_pos;
+std::string input;
+bool m_false_loop;
+uint16_t m_found_brackets;
+
+void runCode();
 
 int main(int argc, char const *argv[])
 {
 	std::ifstream fin(argv[1], std::ios_base::in);
-	if (argc < 2)
-	{
-		std::cout << "Use ./brainfuck with the filelocation of the brainfuck behind it.";
+	input = argv[2];
+	if (!argv[2])
+		std::cout << "If the output isn't what you expected, you need to give a second argument which is used as input";
+	if (!fin) {
+		std::cout << "Are you sure there is a file there? I couldn't find it";
 		exit(1);
 	}
-	if (!fin)
-	{
-		std::cout << "Make sure the source directory of the brainfuck program is correct!";
-		exit(1);
-	}
-	std::ofstream fout("a.out.c", std::ios_base::out);
+	for (unsigned int i = 0; i < 30000; i++)
+		m_cells.push_back(0);
+	m_cell = 0;
+	m_false_loop = false;
 	char ch;
-	fout << "#include <stdio.h>\n#include <stdlib.h>\nint main(int argc, char** argv[]) {" << \
-			"\n\tchar* ptr=(char*)malloc(sizeof(char)*1000000);\n" << \
-			"\tlong long int i;\n" << \
-			"\tfor (i = 0; i < 1000000; ++i) { \n" << \
-			"\t\t*(ptr+i)=0;\n\t}" << std::endl ;
-	std::stack<bool> tabs;
-	while(fin.get(ch))
+	while (fin.get(ch))
 	{
-		switch(ch)
-		{
+		m_brainfuck_code.push_back(ch);
+	}
+	runCode();
+	Sleep(5000);
+	return 0;
+}
+
+void runCode()
+{
+	int i = 0;
+	for (i = 0; i < m_brainfuck_code.size(); i++) {
+	//std::cout << i << std::endl;
+		if (!m_false_loop) {
+			switch (m_brainfuck_code[i])
+			{
 			case '>':
-				for (int i = 0; i < tabs.size() + 1; ++i)
-					fout << "\t";
-				fout << "++ptr;\n";
+				(m_cell < m_cells.size() ? m_cell++ : m_cell = 0);
 				break;
 			case '<':
-				for (int i = 0; i < tabs.size() + 1; ++i)
-					fout << "\t";
-				fout << "--ptr;\n";
+				(m_cell > 0 ? m_cell-- : m_cell = m_cells.size());
 				break;
 			case '+':
-				for (int i = 0; i < tabs.size() + 1; ++i)
-					fout << "\t";
-				fout << "++*ptr;\n";
+				(m_cells[m_cell] < 255 ? m_cells[m_cell]++ : m_cells[m_cell] = 0);
 				break;
 			case '-':
-				for (int i = 0; i < tabs.size() + 1; ++i)
-					fout << "\t";
-				fout << "--*ptr;\n";
+				(m_cells[m_cell] > 0 ? m_cells[m_cell]-- : m_cells[m_cell] = 255);
 				break;
 			case '[':
-				for (int i = 0; i < tabs.size() + 1; ++i)
-					fout << "\t";
-				fout << "while (*ptr) {\n";
-				tabs.push(true);
+				(m_cells[m_cell] != 0 ? m_current_loop.push_back(i) : m_false_loop = true, m_found_brackets = 0);
 				break;
 			case ']':
-				tabs.pop();
-				for (int i = 0; i < tabs.size() + 1; ++i)
-					fout << "\t";
-				fout << "}\n";
+				((int)m_cells[m_cell] == 0 ? m_current_loop.pop_back() : i = m_current_loop[m_current_loop.size() - 1]);
 				break;
 			case '.':
-				for (int i = 0; i < tabs.size() + 1; ++i)
-					fout << "\t";
-				fout << "putchar(*ptr);\n";
+				if (m_cells[m_cell] != 0)
+					std::cout << static_cast<char>(m_cells[m_cell]) << std::flush;
 				break;
 			case ',':
-				for (int i = 0; i < tabs.size() + 1; ++i)
-					fout << "\t";
-				fout << "*ptr=getchar();\n";
+				(m_inp_pos < input.size() ? m_cells[m_cell] = static_cast<uint16_t>(input[m_inp_pos]), m_inp_pos++ : m_cells[m_cell] = 0);
 				break;
-
 			default:
 				break;
+			}
 		}
+		else if (m_brainfuck_code[i] == ']') {
+			m_found_brackets++;
+			if (m_found_brackets > 0) 
+				m_false_loop = false;
+		}
+		else if (m_brainfuck_code[i] == '[')
+			m_found_brackets--;
 	}
-	fout << "return 0;\n}";
-	fout.close();
-	#ifdef __linux__
-		system("gcc a.out.c -o a.out");
-	#elif _WIN32
-		getch();// i really hate this
-	#endif
-	return 0;
 }
