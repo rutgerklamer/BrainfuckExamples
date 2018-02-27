@@ -1,7 +1,6 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-#include <Windows.h>
 
 std::vector<int> m_cells;
 std::vector<int> m_current_loop;
@@ -33,7 +32,6 @@ int main(int argc, char const *argv[])
 		m_brainfuck_code.push_back(ch);
 	}
 	runCode();
-	Sleep(5000);
 	return 0;
 }
 
